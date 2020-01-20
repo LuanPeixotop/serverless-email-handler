@@ -3,7 +3,7 @@
 var aws = require('aws-sdk');
 var ses = new aws.SES({region: 'us-east-1'});
 
-const sendEmailService = async function (mailBody) {
+module.exports.sendEmail = async mailBody => {
 
   return new Promise(async (resolve, reject) => {
     var params = {
@@ -34,5 +34,3 @@ const sendEmailService = async function (mailBody) {
     }
   })
 }
-
-module.exports = { sendEmailService }

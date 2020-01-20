@@ -6,16 +6,41 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
-  region: us-east-1
+  region: ${file(secrets.${self:provider.stage}.json):APP_AWS_REGION }
   stage: ${opt:stage, 'dev'}
   environment:
     EMAILFROM: ${file(secrets.${self:provider.stage}.json):EMAILFROM}
     AUTHORIZATION: ${file(secrets.${self:provider.stage}.json):AUTHORIZATION}
+    EMAILTABLE: ${file(secrets.${self:provider.stage}.json):EMAILTABLE }
+    APP_AWS_REGION: ${file(secrets.${self:provider.stage}.json):APP_AWS_REGION }
   iamRoleStatements:
     - Effect: "Allow"
       Action:
         - "ses:SendEmail"
       Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:DescribeTable"
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${file(secrets.${self:provider.stage}.json):EMAILTABLE }"
+
+resources:
+  Resources:
+    EmailDataTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: "emailId"
+          AttributeType: "S"
+        KeySchema:
+        - AttributeName: "emailId"
+          KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${file(secrets.${self:provider.stage}.json):EMAILTABLE }
 
 functions:
   sendEmail:
@@ -24,3 +49,15 @@ functions:
       - http:
           path: sendEmail
           method: post
+  getEmail:
+    handler: handler.getEmail
+    events:
+      - http:
+          path: getEmail/{emailId}
+          method: get
+  getAllEmails:
+    handler: handler.getAllEmails
+    events:
+      - http:
+          path: getAllEmails
+          method: get
