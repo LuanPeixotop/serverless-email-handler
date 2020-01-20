@@ -1,0 +1,26 @@
+service: serverless-mail-handler
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    EMAILFROM: ${file(secrets.${self:provider.stage}.json):EMAILFROM}
+    AUTHORIZATION: ${file(secrets.${self:provider.stage}.json):AUTHORIZATION}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ses:SendEmail"
+      Resource: "*"
+
+functions:
+  sendEmail:
+    handler: handler.sendEmail
+    events:
+      - http:
+          path: sendEmail
+          method: post
