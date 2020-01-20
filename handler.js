@@ -16,17 +16,10 @@ function createResponse(statusCode, message) {
   };
 }
 
-function authorize(event) {
+module.exports.sendEmail = async event => {
   if (event === undefined || event.headers === undefined || event.headers['Authorization'] === undefined || event.headers['Authorization'] != process.env.AUTHORIZATION) {
     return createResponse(401, 'Alemão não é bem vindo na favela.')
   }
-}
-
-module.exports.sendEmail = async event => {
-  authorize = authorize(event)
-  if (authorize !== undefined) {
-    return authorize
-  } 
 
   console.log(`Oh o que o maluco mandou: ${event.body}`)    
   try {
@@ -64,10 +57,9 @@ module.exports.sendEmail = async event => {
 };
 
 module.exports.getEmail = async event => {
-  authorize = authorize(event)
-  if (authorize !== undefined) {
-    return authorize
-  } 
+  if (event === undefined || event.headers === undefined || event.headers['Authorization'] === undefined || event.headers['Authorization'] != process.env.AUTHORIZATION) {
+    return createResponse(401, 'Alemão não é bem vindo na favela.')
+  }
 
   const emailId = event.pathParameters.emailId;
   var email = null
@@ -85,10 +77,9 @@ module.exports.getEmail = async event => {
 
 
 module.exports.getAllEmails = async event => {
-  authorize = authorize(event)
-  if (authorize !== undefined) {
-    return authorize
-  } 
+  if (event === undefined || event.headers === undefined || event.headers['Authorization'] === undefined || event.headers['Authorization'] != process.env.AUTHORIZATION) {
+    return createResponse(401, 'Alemão não é bem vindo na favela.')
+  }
 
   var allEmails = null
 
