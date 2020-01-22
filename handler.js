@@ -18,28 +18,28 @@ function createResponse(statusCode, message) {
 
 module.exports.sendEmail = async event => {
   if (event === undefined || event.headers === undefined || event.headers['Authorization'] === undefined || event.headers['Authorization'] != process.env.AUTHORIZATION) {
-    return createResponse(401, 'Alemão não é bem vindo na favela.')
+    return createResponse(401, 'Falha na autenticação. Favor, passar o header Authorization')
   }
 
-  console.log(`Oh o que o maluco mandou: ${event.body}`)    
+  console.log(`Body enviado: ${event.body}`)    
   try {
     var mailBody = event.body
 
     if (mailBody === null || mailBody === undefined) {
-      console.log('O maluco esqueceu de mandar os parâmetros')
-      return createResponse(400, 'Esqueceu de mandar os parâmetros, sangue bom! Manda os parâmetros mailto, subject, message e mailstatus, na humildade.') 
+      console.log('Parâmetros não enviados')
+      return createResponse(400, 'Parâmetros não enviados. Favor enviar os parâmetros mailto, subject, message e mailstatus') 
     }
 
     mailBody = JSON.parse(mailBody)
 
     if (mailBody.mailto === undefined || mailBody.subject === undefined || mailBody.message === undefined || mailBody.mailstatus === undefined) {
-      console.log('O maluco deu papo errado')
-      return createResponse(400, 'Chefia, dá um confere nesses parâmetros ae. Cê tem que enviar os parâmetros mailto, subject, message e mailstatus')
+      console.log('Parâmetros não enviados corretamente')
+      return createResponse(400, 'Parâmetros não enviados corretamente. Favor enviar os parâmetros mailto, subject, message e mailstatus')
     }
     
     if (!mailBody.mailto.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
-      console.log('Email da 25 de março: ', mailBody.mailto);
-      return createResponse(400, 'Comprou esse e-mail na Uruguaiana? KKKKKK. Revisa isso ae meu chapa: ' + mailBody.mailto)
+      console.log('E-mail inválido: ', mailBody.mailto);
+      return createResponse(400, 'E-mail inválido: ' + mailBody.mailto)
     }
 
     var emailId = null
@@ -48,17 +48,17 @@ module.exports.sendEmail = async event => {
       emailId = values[1]
     });
     
-    return createResponse(200, 'Enviado, meu patrão! Segue o id do e-mail: ' + emailId)
+    return createResponse(200, emailId)
 
   } catch(err) {
-    console.error('Deu ruim: ', err)  
-    return createResponse(500, 'Deu ruim: ' + err) 
+    console.error('Ocorreu um internon na API: ', err)  
+    return createResponse(500, 'Ocorreu um interno na API : ' + err) 
   }
 };
 
 module.exports.getEmail = async event => {
   if (event === undefined || event.headers === undefined || event.headers['Authorization'] === undefined || event.headers['Authorization'] != process.env.AUTHORIZATION) {
-    return createResponse(401, 'Alemão não é bem vindo na favela.')
+    return createResponse(401, 'Falha na autenticação. Favor, passar o header Authorization')
   }
 
   const emailId = event.pathParameters.emailId;
@@ -69,7 +69,7 @@ module.exports.getEmail = async event => {
   });
 
   if (email === null) {
-    return createResponse(400, 'Achei não, parsa.') 
+    return createResponse(400, 'E-mail não encontrado') 
   } else {
     return createResponse(200, email)
   }
@@ -78,7 +78,7 @@ module.exports.getEmail = async event => {
 
 module.exports.getAllEmails = async event => {
   if (event === undefined || event.headers === undefined || event.headers['Authorization'] === undefined || event.headers['Authorization'] != process.env.AUTHORIZATION) {
-    return createResponse(401, 'Alemão não é bem vindo na favela.')
+    return createResponse(401, 'Falha na autenticação. Favor, passar o header Authorization')
   }
 
   var allEmails = null
@@ -88,7 +88,7 @@ module.exports.getAllEmails = async event => {
   });
 
   if (allEmails === null) {
-    return createResponse(400, 'Tem não mermão') 
+    return createResponse(400, 'A base de e-mails está vazia') 
   } else {
     return createResponse(200, allEmails)
   }
