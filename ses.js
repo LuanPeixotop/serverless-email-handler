@@ -12,7 +12,7 @@ module.exports.sendEmail = async mailBody => {
       },
       Message: {
           Body: {
-              Text: { 
+              Html: { 
                 Charset: 'UTF-8', 
                 Data: mailBody.message 
               }
